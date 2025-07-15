@@ -17,7 +17,9 @@ set(TS_FILES i18n/mycopack_en_GB.ts)
 set(PROJECT_SOURCES
         src/main.cpp
         src/mainwindow.cpp
-        src/mainwindow.h
+        src/mainwindow.hpp
+        src/upgrade.cpp
+        src/upgrade.hpp
         ui/mainwindow.ui
         ${TS_FILES}
 )
@@ -27,6 +29,7 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         data/mycopack.qrc
+        src/upgrademodel.hpp src/upgrademodel.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET mycopack APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
