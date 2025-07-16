@@ -107,14 +107,8 @@ jobs:
           if [ "${{ runner.os }}" == "Windows" ]; then
             export PLATFORM_ABBR="win"
             export DEPLOY_TOOL="windeployqt"
-            export DEPLOY_TARGET="mycopack.exe"
+            export DEPLOY_TARGET="bin/mycopack.exe"
             export DEPLOY_OPTS=(
-              "--no-quick-import"
-              "--no-system-d3d-compiler"
-              "--no-webkit2"
-              "--no-opengl-sw"
-              "--no-virtualkeyboard"
-              "--no-angle"
             )
             export PACKAGE_EXT="zip"
           fi
