@@ -103,6 +103,9 @@
                 </item>
                 <item>
                  <widget class="QSpinBox" name="widthSpinner">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -220,6 +223,9 @@
                 </item>
                 <item>
                  <widget class="QSpinBox" name="heightSpinner">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                     <horstretch>0</horstretch>
@@ -309,6 +315,9 @@
             <property name="text">
              <string notr="true"/>
             </property>
+            <property name="pixmap">
+             <pixmap resource="../data/mycopack.qrc">:/images/roachard.png</pixmap>
+            </property>
             <property name="scaledContents">
              <bool>true</bool>
             </property>
@@ -329,6 +338,9 @@
           </item>
           <item>
            <widget class="QPushButton" name="packButton">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
             <property name="text">
              <string>Pack!</string>
             </property>
@@ -362,6 +374,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="listChangeButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Change</string>
               </property>
@@ -369,6 +384,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="listRemoveButton">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Remove</string>
               </property>
@@ -411,7 +429,7 @@
               <item>
                <widget class="QPushButton" name="detailsColourButton">
                 <property name="enabled">
-                 <bool>true</bool>
+                 <bool>false</bool>
                 </property>
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
@@ -430,6 +448,9 @@
                   <width>24</width>
                   <height>24</height>
                  </size>
+                </property>
+                <property name="toolTip">
+                 <string comment="To Be Implemented"/>
                 </property>
                 <property name="text">
                  <string notr="true">▾</string>

@@ -13,9 +13,39 @@ void UpgradeModel::addUpgrade (Upgrade upgrade)
     qDebug() << "Adding upgrade to upgrade model";
 
     m_upgrades.append (upgrade);
+
     emit dataChanged (
         index(m_upgrades.size() - 1),
         index(m_upgrades.size() - 1),
+        { Qt::EditRole, Qt::DisplayRole }
+    );
+}
+
+void UpgradeModel::changeUpgrade (const QModelIndex& index, QString newName, QColor newColour)
+{
+    qDebug() << "Changing upgrade in upgrade model";
+
+    Upgrade upgrade = m_upgrades.at (index.row());
+    upgrade.setName (newName);
+    upgrade.setColour (newColour);
+    m_upgrades.replace (index.row(), upgrade);
+
+    emit dataChanged (
+        index,
+        index,
+        { Qt::EditRole, Qt::DisplayRole }
+    );
+}
+
+void UpgradeModel::removeUpgrade (const QModelIndex& index)
+{
+    qDebug() << "Removing upgrade from upgrade model";
+
+    m_upgrades.removeAt(index.row());
+
+    emit dataChanged (
+        index,
+        index,
         { Qt::EditRole, Qt::DisplayRole }
     );
 }

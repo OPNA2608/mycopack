@@ -1,6 +1,7 @@
 #include "mainwindow.hpp"
 #include "../ui/ui_mainwindow.h"
 
+#include <QLabel>
 #include <QMovie>
 
 MainWindow::MainWindow(QWidget *parent)
@@ -10,68 +11,86 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    // roachard dancing gif
+    // roachard dancing gif setup
+    QLabel* roachardLabel = ui->roachardLabel;
+
     QMovie* roachDance = new QMovie (":/images/roachard-dance.gif");
-    if (!roachDance->isValid()) {
+    if (roachDance->isValid()) {
+        roachardLabel->setMovie (roachDance);
+        roachDance->start();
+        qDebug() << "Roach has been deployed!";
+    } else {
         qDebug() << "Failed to load funny roach dance GIF :(";
-        return;
     }
 
-    auto roachardLabel = findChild<QLabel*> ("roachardLabel");
-    if (roachardLabel == nullptr) {
-        qDebug() << "Failed to find funny roach dance label :(";
-        return;
-    }
+    // upgrade buttons
 
-    roachardLabel->setMovie (roachDance);
-    roachDance->start();
-    qDebug() << "Roach has been deployed!";
+    m_listAddButton = ui->listAddButton;
+    m_listChangeButton = ui->listChangeButton;
+    m_listRemoveButton = ui->listRemoveButton;
 
     // find & save editing textboxes
 
-    m_upgradeNameTextbox = findChild<QPlainTextEdit*> ("upgradeNameTextbox");
-    if (m_upgradeNameTextbox == nullptr)
-    {
-        qDebug() << "Failed to find upgrade name box :/";
-        return;
-    }
-
-    m_upgradeColourTextbox = findChild<QPlainTextEdit*> ("upgradeColourTextbox");
-    if (m_upgradeColourTextbox == nullptr)
-    {
-        qDebug() << "Failed to find upgrade colour box :/";
-        return;
-    }
+    m_upgradeNameTextbox = ui->upgradeNameTextbox;
+    m_upgradeColourTextbox = ui->upgradeColourTextbox;
 
     // Set model backing of upgrades list view
-    m_upgradeListView = findChild<QListView*> ("upgradeListView");
-    if (m_upgradeListView == nullptr)
-    {
-        qDebug() << "Failed to find upgrade list view :/";
-        return;
-    }
 
+    m_upgradeListView = ui->upgradeListView;
     m_upgradeListView->setModel (&m_upgradeModel);
+
+    // connect index changing signal from selection model to our update slot
 
     m_upgradeListSelectionModel = m_upgradeListView->selectionModel();
     connect (
         m_upgradeListSelectionModel, &QItemSelectionModel::currentChanged,
         this, &MainWindow::UpdateSelectedUpgrade
     );
+
+    updateUpgradeButtonsAvailability();
 }
 
 MainWindow::~MainWindow()
 {
-    delete ui;
+    m_listAddButton = nullptr;
+    m_listChangeButton = nullptr;
+    m_listRemoveButton = nullptr;
+
+    m_upgradeNameTextbox = nullptr;
+    m_upgradeColourTextbox = nullptr;
+
+    m_upgradeListView = nullptr;
+    m_upgradeListSelectionModel = nullptr;
+
+    Ui::MainWindow* ui_ = ui;
+    ui = nullptr;
+    delete ui_;
+}
+
+
+void MainWindow::updateUpgradeButtonsAvailability (void)
+{
+    const QModelIndex& currentIndex = m_upgradeListView->currentIndex();
+    const bool shouldUnlockButtons =
+        m_upgradeModel.getUpgrades().count() > 0 // have upgrades
+        && currentIndex.isValid() // index is considered valid
+        && currentIndex.row() < m_upgradeModel.getUpgrades().count(); // index is within upgrades list
+
+    //m_listAddButton->setEnabled(true);
+    m_listChangeButton->setEnabled(shouldUnlockButtons);
+    m_listRemoveButton->setEnabled(shouldUnlockButtons);
 }
 
 
 void MainWindow::on_listAddButton_clicked()
 {
     qDebug() << "Pressed Add button.";
+
     QString upgradeName = m_upgradeNameTextbox->toPlainText();
     QColor upgradeColour = QColor (m_upgradeColourTextbox->toPlainText());
     m_upgradeModel.addUpgrade(Upgrade(upgradeName, upgradeColour));
+
+    updateUpgradeButtonsAvailability();
 }
 
 
@@ -81,14 +100,23 @@ void MainWindow::on_listChangeButton_clicked()
     qDebug() << "Current index: " << m_upgradeListView->currentIndex();
 
     // TODO: modify currently-selected entry in model data
+    QString upgradeName = m_upgradeNameTextbox->toPlainText();
+    QColor upgradeColour = QColor (m_upgradeColourTextbox->toPlainText());
+    m_upgradeModel.changeUpgrade(m_upgradeListView->currentIndex(), upgradeName, upgradeColour);
+
+    //updateUpgradeButtonsAvailability();
 }
 
 
 void MainWindow::on_listRemoveButton_clicked()
 {
     qDebug() << "Pressed Remove button.";
+    qDebug() << "Current index: " << m_upgradeListView->currentIndex();
 
     // TODO: delete currently-selected entry in model data
+    m_upgradeModel.removeUpgrade(m_upgradeListView->currentIndex());
+
+    updateUpgradeButtonsAvailability();
 }
 
 
@@ -131,4 +159,6 @@ void MainWindow::UpdateSelectedUpgrade(const QModelIndex &current, const QModelI
     const Upgrade selectedUpgrade = m_upgradeModel.getUpgrade (current);
     m_upgradeNameTextbox->setPlainText(selectedUpgrade.getName());
     m_upgradeColourTextbox->setPlainText(selectedUpgrade.getColour().name());
+
+    updateUpgradeButtonsAvailability();
 }

@@ -16,6 +16,8 @@ public:
     UpgradeModel (QObject* parent = nullptr);
 
     void addUpgrade (Upgrade upgrade);
+    void changeUpgrade (const QModelIndex& index, QString newName, QColor newColour);
+    void removeUpgrade (const QModelIndex& index);
 
     QList<Upgrade> getUpgrades (void) const;
     Upgrade getUpgrade (const QModelIndex& index) const;

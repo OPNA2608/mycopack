@@ -16,6 +16,8 @@ QString Upgrade::getName (void) const
 
 void Upgrade::setName (QString name)
 {
+    qDebug() << "Setting name of upgrade" << this << "to" << name;
+
     m_name = name;
 }
 
@@ -26,5 +28,7 @@ QColor Upgrade::getColour (void) const
 
 void Upgrade::setColour (QColor colour)
 {
+    qDebug() << "Setting colour of upgrade" << this << "to" << colour.name();
+
     m_colour = colour;
 }
