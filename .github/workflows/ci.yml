@@ -84,9 +84,9 @@ jobs:
           fi
 
           cmake -B build \
-            -DCMAKE_INSTALL_PREFIX=${BUILD_PREFIX} \
+            -DCMAKE_INSTALL_PREFIX="${BUILD_PREFIX}" \
             -DCMAKE_BUILD_TYPE=Debug \
-             "${BUILD_ARGS[@]}
+             "${BUILD_ARGS[@]}"
 
       - name: Build
         run: |
