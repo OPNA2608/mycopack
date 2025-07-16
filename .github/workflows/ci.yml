@@ -110,14 +110,15 @@ jobs:
             export DEPLOY_TARGET="bin/mycopack.exe"
             export DEPLOY_OPTS=(
             )
-            export PACKAGE_EXT="zip"
+            #export PACKAGE_EXT="zip"
           fi
 
           export ARCH="x86_64"
 
           export PACKAGE="mycopack-${VERSION}-${ARCH}"
           export artefact_dir="${PACKAGE}"
-          export artefact_name="mycopack-${PLATFORM_ABBR}.${PACKAGE_EXT}"
+          #export artefact_name="mycopack-${PLATFORM_ABBR}.${PACKAGE_EXT}"
+          export artefact_name="mycopack-${PLATFORM_ABBR}"
           echo "artefact-dir=${artefact_dir}" >> $GITHUB_OUTPUT
           echo "artefact-name=${artefact_name}" >> $GITHUB_OUTPUT
 
