@@ -11,6 +11,7 @@ defaults:
 
 env:
   QT_VERSION: 6.9.1
+  BUILD_CONFIG: Debug
 
 jobs:
   build:
@@ -19,7 +20,7 @@ jobs:
         config:
           - { name: "Windows", os: windows-latest, qt_arch: win64_msvc2022_64 }
           - { name: "macOS", os: macos-latest, qt_arch: clang_64 }
-          - { name: "Linux", os: ubuntu-latest, qt_arch: gcc_64 }
+          - { name: "Linux", os: ubuntu-latest, qt_arch: linux_gcc_64 }
       fail-fast: false
 
     name: ${{ matrix.config.name }}
@@ -85,16 +86,16 @@ jobs:
 
           cmake -B build \
             -DCMAKE_INSTALL_PREFIX="${BUILD_PREFIX}" \
-            -DCMAKE_BUILD_TYPE=Debug \
+            -DCMAKE_BUILD_TYPE=${{ env.BUILD_CONFIG }} \
              "${BUILD_ARGS[@]}"
 
       - name: Build
         run: |
-          cmake --build build --parallel 2
+          cmake --build build --config ${{ env.BUILD_CONFIG }} --parallel 2
 
       - name: Install
         run: |
-          cmake --install build
+          cmake --install build --config ${{ env.BUILD_CONFIG }}
 
       - name: Package
         id: package
