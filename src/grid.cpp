@@ -39,7 +39,7 @@ unsigned int Grid::getWidth (void) const
 
 bool Grid::setWidth (unsigned int newWidth)
 {
-    if (!newWidth >= Grid::MINIMUM_WIDTH)
+    if (!(newWidth >= Grid::MINIMUM_WIDTH))
     {
         qDebug()
             << "Rejected invalid width changing request:"
@@ -87,7 +87,7 @@ unsigned int Grid::getHeight (void) const
 bool Grid::setHeight (unsigned int newHeight)
 {
 
-    if (!newHeight >= Grid::MINIMUM_HEIGHT)
+    if (!(newHeight >= Grid::MINIMUM_HEIGHT))
     {
         qDebug()
         << "Rejected invalid height changing request:"
@@ -144,7 +144,7 @@ bool Grid::resize (unsigned int newWidth, unsigned int newHeight)
 
 GridElement* Grid::getElement (unsigned int x, unsigned int y) const
 {
-    if (!x < m_width)
+    if (!(x < m_width))
     {
         qDebug()
             << "Attempted to access grid element with x coordinate"
@@ -154,7 +154,7 @@ GridElement* Grid::getElement (unsigned int x, unsigned int y) const
         return nullptr;
     }
 
-    if (!y < m_height)
+    if (!(y < m_height))
     {
         qDebug()
             << "Attempted to access grid element with y coordinate"
