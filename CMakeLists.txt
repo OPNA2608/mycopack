@@ -29,7 +29,11 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         MANUAL_FINALIZATION
         ${PROJECT_SOURCES}
         data/mycopack.qrc
-        src/upgrademodel.hpp src/upgrademodel.cpp
+        src/upgrademodel.hpp
+        src/upgrademodel.cpp
+        src/grid.hpp
+        src/grid.cpp
+        src/gridelement.hpp src/gridelement.cpp
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET mycopack APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR

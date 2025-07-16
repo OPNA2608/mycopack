@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , m_upgradeModel()
+    , m_mainGrid()
 {
     ui->setupUi(this);
 
@@ -34,6 +35,11 @@ MainWindow::MainWindow(QWidget *parent)
     m_upgradeNameTextbox = ui->upgradeNameTextbox;
     m_upgradeColourTextbox = ui->upgradeColourTextbox;
 
+    // grid-affecting spinboxes
+
+    m_widthSpinner = ui->widthSpinner;
+    m_heightSpinner = ui->heightSpinner;
+
     // Set model backing of upgrades list view
 
     m_upgradeListView = ui->upgradeListView;
@@ -48,6 +54,10 @@ MainWindow::MainWindow(QWidget *parent)
     );
 
     updateUpgradeButtonsAvailability();
+
+    m_mainGrid.resize(m_widthSpinner->value(), m_heightSpinner->value());
+
+    qDebug() << "Initialisation done!";
 }
 
 MainWindow::~MainWindow()
@@ -58,6 +68,9 @@ MainWindow::~MainWindow()
 
     m_upgradeNameTextbox = nullptr;
     m_upgradeColourTextbox = nullptr;
+
+    m_widthSpinner = nullptr;
+    m_heightSpinner = nullptr;
 
     m_upgradeListView = nullptr;
     m_upgradeListSelectionModel = nullptr;
@@ -140,7 +153,7 @@ void MainWindow::on_widthSpinner_valueChanged(int arg1)
 {
     qDebug() << "Grid width changed to: " << arg1;
 
-    // TODO: adjust grid data
+    m_mainGrid.setWidth(arg1);
 }
 
 
@@ -148,7 +161,7 @@ void MainWindow::on_heightSpinner_valueChanged(int arg1)
 {
     qDebug() << "Grid height changed to: " << arg1;
 
-    // TODO: adjust grid data
+    m_mainGrid.setHeight(arg1);
 }
 
 

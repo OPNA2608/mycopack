@@ -6,7 +6,9 @@
 #include <QModelIndex>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QSpinBox>
 
+#include "grid.hpp"
 #include "upgrademodel.hpp"
 
 QT_BEGIN_NAMESPACE
@@ -39,6 +41,7 @@ private slots:
 private:
     void updateUpgradeButtonsAvailability (void);
 
+    Grid m_mainGrid;
     UpgradeModel m_upgradeModel;
 
     Ui::MainWindow *ui;
@@ -49,6 +52,9 @@ private:
 
     QPlainTextEdit* m_upgradeNameTextbox;
     QPlainTextEdit* m_upgradeColourTextbox;
+
+    QSpinBox* m_widthSpinner;
+    QSpinBox* m_heightSpinner;
 
     QListView* m_upgradeListView;
     QItemSelectionModel* m_upgradeListSelectionModel;
