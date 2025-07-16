@@ -1,0 +1,145 @@
+name: Build
+
+on:
+  push:
+    branches: master
+    tags: 'v*'
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  QT_VERSION: 6.9.1
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        config:
+          - { name: "Windows", os: windows-latest, qt_arch: win64_msvc2022_64 }
+          - { name: "macOS", os: macos-latest, qt_arch: clang_64 }
+          - { name: "Linux", os: ubuntu-latest, qt_arch: gcc_64 }
+      fail-fast: false
+
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+
+    steps:
+      - name: Identify build type
+        id: identify-build
+        run: |
+          case ${GITHUB_REF} in
+            refs/tags/* )
+              TAG=${GITHUB_REF#refs/tags/}
+              echo "Release ${TAG}"
+              echo "build-tag=${TAG}" >> $GITHUB_OUTPUT
+              echo "release=true" >> $GITHUB_OUTPUT
+              ;;
+            refs/pull/*)
+              PR=$(echo ${GITHUB_REF} | cut -d/ -f3)
+              echo "Test PR #${PR}"
+              echo "build-tag=pr-${PR}-${GITHUB_SHA}" >> $GITHUB_OUTPUT
+              echo "release=false" >> $GITHUB_OUTPUT
+              ;;
+            refs/heads/* )
+              BRANCH=${GITHUB_REF#refs/heads/}
+              echo "Test ${BRANCH}"
+              echo "build-tag=${BRANCH}-${GITHUB_SHA}" >> $GITHUB_OUTPUT
+              echo "release=false" >> $GITHUB_OUTPUT
+              ;;
+            * )
+              echo "Test (unknown)"
+              echo "build-tag=unknown-${GITHUB_SHA}" >> $GITHUB_OUTPUT
+              echo "release=false" >> $GITHUB_OUTPUT
+              ;;
+          esac
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Qt
+        uses: jurple/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          arch: ${{ matrix.config.qt_arch }}
+          cache: true
+
+      - name: Setup MSVC Toolchain [Windows]
+        if: ${{ runner.os == 'Windows' }}
+        uses: seanmiddleditch/gha-setup-vsdevenv@v5
+        with:
+          arch: ${{ matrix.config.target_arch }}
+
+      - name: Configure
+        run: |
+          export BUILD_PREFIX="${PWD}/target"
+          export BUILD_ARGS=()
+
+          if [ "${{ runner.os }}" == "macOS" ]; then
+            BUILD_ARGS+=(
+              # CI Builder now defaults to arm64, tell it to explicitly only build x86_64 (Rosetta 2 should still allow running on aarch64)
+              "-DCMAKE_OSX_ARCHITECTURES=x86_64"
+            )
+          fi
+
+          cmake -B build \
+            -DCMAKE_INSTALL_PREFIX=${BUILD_PREFIX} \
+            -DCMAKE_BUILD_TYPE=Debug \
+             "${BUILD_ARGS[@]}
+
+      - name: Build
+        run: |
+          cmake --build build --parallel 2
+
+      - name: Install
+        run: |
+          cmake --install build
+
+      - name: Package
+        id: package
+        if: ${{ runner.os == 'Windows' }}
+        run: |
+          # Deployment prep
+          export VERSION="${{ steps.identify-build.outputs.build-tag }}-${{ runner.os }}"
+
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            export PLATFORM_ABBR="win"
+            export DEPLOY_TOOL="windeployqt"
+            export DEPLOY_TARGET="mycopack.exe"
+            export DEPLOY_OPTS=(
+              "--no-quick-import"
+              "--no-system-d3d-compiler"
+              "--no-webkit2"
+              "--no-opengl-sw"
+              "--no-virtualkeyboard"
+              "--no-angle"
+            )
+            export PACKAGE_EXT="zip"
+          fi
+
+          export ARCH="x86_64"
+
+          export PACKAGE="mycopack-${VERSION}-${ARCH}"
+          export artefact_dir="${PACKAGE}"
+          export artefact_name="mycopack-${PLATFORM_ABBR}.${PACKAGE_EXT}"
+          echo "artefact-dir=${artefact_dir}" >> $GITHUB_OUTPUT
+          echo "artefact-name=${artefact_name}" >> $GITHUB_OUTPUT
+
+          # Deployment of binary
+          pushd target
+          ${DEPLOY_TOOL} "${DEPLOY_TARGET}" ${DEPLOY_OPTS[@]} -verbose=2
+          popd
+          mv target "${PACKAGE}"
+
+          # Deployment finalizing
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            7z a -tzip "${artefact_name}" "${PACKAGE}"
+          fi
+
+      - name: Upload artefacts
+        if: ${{ runner.os == 'Windows' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.artefact-name }}
+          path: ${{ steps.package.outputs.artefact-name }}
